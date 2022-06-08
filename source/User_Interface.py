@@ -2,7 +2,23 @@
 from tkinter import *
 from tkinter import filedialog
 from PIL import ImageTk, Image
+from Shoreline import Shoreline
 ### Fim importações
+
+        # def get_path_image(label):
+        #     path = filedialog.askopenfilename(
+        #     initialdir = "/Downloads/",
+        #     title = "Selecione a imagem",
+        #     filetypes = (("Arquivos tif", "*.tif"), ("Todos os arquivos", "*.*")))
+        
+        #     image_original = Image.open(path)
+        
+        #     new_image = image_original.resize(size=[494, 334])
+        
+        #     image = ImageTk.PhotoImage(new_image)
+
+        #     label.configure(image=image, width=494, height=334)
+        #     label.image=image
 
 class ExtratorLinhasCosteiras():
 
@@ -10,23 +26,11 @@ class ExtratorLinhasCosteiras():
     def construtor_interface():
         root = Tk()
         root.title("Projeto: Extrator de Linhas Costeiras")
+        
+        shoreline = Shoreline()
+        # path = shoreline.obter_path_image()
+        # image_preview = shoreline.redimensionar_image_root(path)
 
-        def get_path_image(label):
-            path = filedialog.askopenfilename(
-            initialdir = "/Downloads/",
-            title = "Selecione a imagem",
-            filetypes = (("Arquivos tif", "*.tif"), ("Todos os arquivos", "*.*")))
-        
-            image_original = Image.open(path)
-        
-            new_image = image_original.resize(size=[494, 334])
-        
-            image = ImageTk.PhotoImage(new_image)
-
-            label.configure(image=image, width=494, height=334)
-            label.image=image
-        
-        
         ### Inicio Configuarações de dimensões e posicionamento da janela
         height = 525
         width = 1140
@@ -45,8 +49,11 @@ class ExtratorLinhasCosteiras():
         menu = Menu(root)
 
         # File Menu
+
         file_menu = Menu(menu, tearoff=0)
-        file_menu.add_command(label="Abrir Imagem", command= lambda: get_path_image(image_original))
+        file_menu.add_command(
+            label="Abrir Imagem", 
+            command= lambda: shoreline.configure_label(image_original, image_filtered))
         file_menu.add_separator()
         file_menu.add_command(label="Sair")
         menu.add_cascade(label="Arquivo", menu=file_menu)
@@ -182,8 +189,8 @@ class ExtratorLinhasCosteiras():
         button_exportar.grid(row=6, column=2)
         ### Fim Botões
 
-
         root.mainloop()
+
 
 execute = ExtratorLinhasCosteiras()
 execute.construtor_interface()
