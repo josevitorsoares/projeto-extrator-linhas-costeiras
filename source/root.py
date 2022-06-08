@@ -1,11 +1,12 @@
 ### Inicio importações
+from cgitb import text
 from tkinter import *
 from tkinter import filedialog
 from PIL import ImageTk, Image, TiffImagePlugin
 ### Fim importações
 
 root = Tk()
-root.title("Projeto Extrator de Linhas Costeiras")
+root.title("Projeto: Extrator de Linhas Costeiras")
 
 def get_path_image(label):
         path = filedialog.askopenfilename(
@@ -24,7 +25,7 @@ def get_path_image(label):
         
         
 ### Inicio Configuarações de dimensões e posicionamento da janela
-height = 620
+height = 530
 width = 1140
 
 width_screen = root.winfo_screenwidth()
@@ -63,10 +64,11 @@ label_image_original = Label(
 
 image_original = Label(
     root,
+    text="Sua imagem abrirá aqui",
     bd=1,
     width=70,
     height=22,
-    relief="solid")
+    relief="raised")
 
 label_image_original.grid(row=0, column=1)
 image_original.grid(row=1, column= 1, padx=50)
@@ -77,12 +79,13 @@ label_image_filtered = Label(
     font="Fira 14")
 
 image_filtered = Label(
-    root, 
+    root,
+    text="Sua imagem abrirá aqui", 
     width=70,
     height=22,
     bd=1,
-    bg="yellow",
-    relief="solid",
+    # bg="yellow",
+    relief="raised",
     )
 
 label_image_filtered.grid(row=0, column=2, padx=0)
@@ -113,7 +116,7 @@ spinbox_filtro_gaussiano.grid(row=4, column=1, pady=0)
 ### Inicio Filtro Tras. Morforlogica
 label_transformacao_morfologica = Label(
     root,
-    text="Transformacao Morfologica",
+    text="Transformação Morfológica",
     font="Fira 14"
     )
 
@@ -151,5 +154,30 @@ spinbox_transformacao_morfologica.grid(row=4, column=2, pady=0)
 ### Fim Filtro Tras. Morforlogica
 
 ### Fim Configurações de filtros
+
+### Inicio Botões
+button_aplicar = Button(
+    root,
+    text="Aplicar Filtros",
+    font="Fira 12",
+)
+
+button_exportar = Button(
+    root,
+    text="Exportar Imagem com os Filtros",
+    font="Fira 12"
+)
+
+button_reverter = Button(
+    root,
+    text="Reverter",
+    font="Fira 12",
+)
+
+button_reverter.grid(row=6, column=1, pady=30, padx=30)
+button_aplicar.grid(row=6, columnspan=3)
+button_exportar.grid(row=6, column=2)
+### Fim Botões
+
 
 root.mainloop()
