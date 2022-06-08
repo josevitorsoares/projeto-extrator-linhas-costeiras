@@ -25,7 +25,7 @@ def get_path_image(label):
         
         
 ### Inicio Configuarações de dimensões e posicionamento da janela
-height = 530
+height = 525
 width = 1140
 
 width_screen = root.winfo_screenwidth()
