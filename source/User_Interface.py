@@ -1,24 +1,13 @@
 ### Inicio importações
+from ast import increment_lineno
+from importlib.resources import path
+from operator import ge
 from tkinter import *
 from tkinter import filedialog
+from webbrowser import get
 from PIL import ImageTk, Image
-from Shoreline import Shoreline
+import Shoreline as shore
 ### Fim importações
-
-        # def get_path_image(label):
-        #     path = filedialog.askopenfilename(
-        #     initialdir = "/Downloads/",
-        #     title = "Selecione a imagem",
-        #     filetypes = (("Arquivos tif", "*.tif"), ("Todos os arquivos", "*.*")))
-        
-        #     image_original = Image.open(path)
-        
-        #     new_image = image_original.resize(size=[494, 334])
-        
-        #     image = ImageTk.PhotoImage(new_image)
-
-        #     label.configure(image=image, width=494, height=334)
-        #     label.image=image
 
 class ExtratorLinhasCosteiras():
 
@@ -26,13 +15,9 @@ class ExtratorLinhasCosteiras():
     def construtor_interface():
         root = Tk()
         root.title("Projeto: Extrator de Linhas Costeiras")
-        
-        shoreline = Shoreline()
-        # path = shoreline.obter_path_image()
-        # image_preview = shoreline.redimensionar_image_root(path)
 
         ### Inicio Configuarações de dimensões e posicionamento da janela
-        height = 525
+        height = 560
         width = 1140
 
         width_screen = root.winfo_screenwidth()
@@ -53,7 +38,10 @@ class ExtratorLinhasCosteiras():
         file_menu = Menu(menu, tearoff=0)
         file_menu.add_command(
             label="Abrir Imagem", 
-            command= lambda: shoreline.configure_label(image_original, image_filtered))
+            command= lambda: 
+                shore.configure_labels(
+                    image_original,
+                    image_filtered)),
         file_menu.add_separator()
         file_menu.add_command(label="Sair")
         menu.add_cascade(label="Arquivo", menu=file_menu)
@@ -94,7 +82,6 @@ class ExtratorLinhasCosteiras():
             width=70,
             height=22,
             bd=1,
-            # bg="yellow",
             relief="raised",
         )
 
@@ -111,16 +98,21 @@ class ExtratorLinhasCosteiras():
         font="Fira 14"
         )
 
-        spinbox_filtro_gaussiano =Spinbox(
+        scale_filtro_gaussiano = Scale(
         root,
         from_=0,
         to=255,
-        width=5,
+        width=20,
+        orient=HORIZONTAL,
+        resolution=1,
         font="Fira 12",
+        length=200,
         )
 
-        label_filtro_gaussiano.grid(row=3, column=1, pady=8)
-        spinbox_filtro_gaussiano.grid(row=4, column=1, pady=0)
+        label_linha = Label(text="").grid(rowspan=2, column=1)
+
+        label_filtro_gaussiano.grid(row=4, column=1, pady=0, padx=0)
+        scale_filtro_gaussiano.grid(row=5, column=1, pady=0)
         ### Fim Filtro Gaussiano
 
         ### Inicio Filtro Tras. Morforlogica
@@ -130,17 +122,19 @@ class ExtratorLinhasCosteiras():
             font="Fira 14"
         )
 
-        spinbox_transformacao_morfologica =Spinbox(
+        scale_transformacao_morfologica = Scale(
             root,
             from_=1,
             to=255,
-            width=5,
+            width=20,
+            orient=HORIZONTAL,
+            resolution=1,
             font="Fira 12",
-            increment=1,
+            length=250,
         )
 
-        label_transformacao_morfologica.grid(row=3, columnspan=3, pady=10)
-        spinbox_transformacao_morfologica.grid(row=4, columnspan=3, pady=0)
+        label_transformacao_morfologica.grid(row=4, columnspan=3, pady=0, padx=0)
+        scale_transformacao_morfologica.grid(row=5, columnspan=3, pady=0)
         ### Fim Filtro Tras. Morforlogica
 
         ### Inicio Filtro Tras. Morforlogica
@@ -150,17 +144,19 @@ class ExtratorLinhasCosteiras():
             font="Fira 14"
         )
 
-        spinbox_canny =Spinbox(
+        scale_canny = Scale(
             root,
             from_=100,
             to=200,
-            width=5,
+            width=20,
+            orient=HORIZONTAL,
+            resolution=1,
             font="Fira 12",
-            increment=1,
+            length=200,
         )
 
-        label_canny.grid(row=3, column=2,)
-        spinbox_canny.grid(row=4, column=2, pady=0)
+        label_canny.grid(row=4, column=2,)
+        scale_canny.grid(row=5, column=2, pady=0)
         ### Fim Filtro Tras. Morforlogica
 
         ### Fim Configurações de filtros
@@ -170,6 +166,12 @@ class ExtratorLinhasCosteiras():
             root,
             text="Aplicar Filtros",
             font="Fira 12",
+            command= lambda: shore.apply_filter(
+                path= shore.global_path,
+                value_fG= scale_filtro_gaussiano.get(),
+                value_tM= scale_transformacao_morfologica.get(),
+                value_fC= scale_canny.get()
+            )
         )
 
         button_exportar = Button(
@@ -190,6 +192,15 @@ class ExtratorLinhasCosteiras():
         ### Fim Botões
 
         root.mainloop()
+
+    # def apply_filter():
+    #     banda = shore.converter_imagem_array_numpy(dataset_path)
+    #     filtro_G = shore.filtro_gaussiano(banda, 0)
+    #     trans_M = shore.transformacao_morfologica(filtro_G, 0)
+    #     thre = shore.threshold(trans_M, 0)
+    #     image_final =shore.extração_bordas(thre, 0)
+
+    #     shore.exibir(image_final)
 
 
 execute = ExtratorLinhasCosteiras()
