@@ -1,12 +1,9 @@
 ### Inicio importações
-from ast import increment_lineno
-from importlib.resources import path
-from operator import ge
+# from importlib.resources import path
 from tkinter import *
 from tkinter import filedialog
-from webbrowser import get
 from PIL import ImageTk, Image
-import Shoreline as shore
+import Shoreline as shore 
 ### Fim importações
 
 class ExtratorLinhasCosteiras():
@@ -39,7 +36,7 @@ class ExtratorLinhasCosteiras():
         file_menu.add_command(
             label="Abrir Imagem", 
             command= lambda: 
-                shore.configure_labels(
+                shore.Shoreline.configure_labels(
                     image_original,
                     image_filtered)),
         file_menu.add_separator()
@@ -68,8 +65,8 @@ class ExtratorLinhasCosteiras():
             height=22,
             relief="raised")
 
-        label_image_original.grid(row=0, column=1)
-        image_original.grid(row=1, column= 1, padx=50)
+        label_image_original.grid(row=0, columnspan=1)
+        image_original.grid(row=1, columnspan=1, padx=50)
 
         label_image_filtered = Label(
             root, 
@@ -85,8 +82,8 @@ class ExtratorLinhasCosteiras():
             relief="raised",
         )
 
-        label_image_filtered.grid(row=0, column=2, padx=0)
-        image_filtered.grid(row=1, column=2, padx=0)
+        label_image_filtered.grid(row=0, column=1, padx=0)
+        image_filtered.grid(row=1, column=1, padx=0)
         ### Fim Adição e posicionamento dos "images views" na janela
 
         ### Inicio Configurações de filtros
@@ -95,7 +92,7 @@ class ExtratorLinhasCosteiras():
         label_filtro_gaussiano = Label(
             root,
         text="Filtro Gaussiano",
-        font="Fira 14"
+        font="Fira 14",
         )
 
         scale_filtro_gaussiano = Scale(
@@ -111,8 +108,8 @@ class ExtratorLinhasCosteiras():
 
         label_linha = Label(text="").grid(rowspan=2, column=1)
 
-        label_filtro_gaussiano.grid(row=4, column=1, pady=0, padx=0)
-        scale_filtro_gaussiano.grid(row=5, column=1, pady=0)
+        label_filtro_gaussiano.grid(row=4, column=0, pady=0, padx=0)
+        scale_filtro_gaussiano.grid(row=5, column=0, pady=0)
         ### Fim Filtro Gaussiano
 
         ### Inicio Filtro Tras. Morforlogica
@@ -133,8 +130,8 @@ class ExtratorLinhasCosteiras():
             length=250,
         )
 
-        label_transformacao_morfologica.grid(row=4, columnspan=3, pady=0, padx=0)
-        scale_transformacao_morfologica.grid(row=5, columnspan=3, pady=0)
+        label_transformacao_morfologica.grid(row=4, columnspan=2, padx=0)
+        scale_transformacao_morfologica.grid(row=5, columnspan=2, padx=0)
         ### Fim Filtro Tras. Morforlogica
 
         ### Inicio Filtro Tras. Morforlogica
@@ -155,8 +152,8 @@ class ExtratorLinhasCosteiras():
             length=200,
         )
 
-        label_canny.grid(row=4, column=2,)
-        scale_canny.grid(row=5, column=2, pady=0)
+        label_canny.grid(row=4, column=1,)
+        scale_canny.grid(row=5, column=1, pady=0)
         ### Fim Filtro Tras. Morforlogica
 
         ### Fim Configurações de filtros
@@ -166,8 +163,8 @@ class ExtratorLinhasCosteiras():
             root,
             text="Aplicar Filtros",
             font="Fira 12",
-            command= lambda: shore.apply_filter(
-                path= shore.global_path,
+            command= lambda: shore.Shoreline.apply_filter(
+                path= shore.Shoreline.global_path,
                 value_fG= scale_filtro_gaussiano.get(),
                 value_tM= scale_transformacao_morfologica.get(),
                 value_fC= scale_canny.get()
@@ -186,22 +183,12 @@ class ExtratorLinhasCosteiras():
             font="Fira 12",
         )
 
-        button_reverter.grid(row=6, column=1, pady=30, padx=30)
-        button_aplicar.grid(row=6, columnspan=3)
-        button_exportar.grid(row=6, column=2)
+        button_reverter.grid(row=6, column=0, pady=30)
+        button_aplicar.grid(row=6, columnspan=3, padx=0)
+        button_exportar.grid(row=6, column=1,columnspan=2, padx=0)
         ### Fim Botões
 
         root.mainloop()
-
-    # def apply_filter():
-    #     banda = shore.converter_imagem_array_numpy(dataset_path)
-    #     filtro_G = shore.filtro_gaussiano(banda, 0)
-    #     trans_M = shore.transformacao_morfologica(filtro_G, 0)
-    #     thre = shore.threshold(trans_M, 0)
-    #     image_final =shore.extração_bordas(thre, 0)
-
-    #     shore.exibir(image_final)
-
 
 execute = ExtratorLinhasCosteiras()
 execute.construtor_interface()
