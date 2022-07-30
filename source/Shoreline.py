@@ -1,22 +1,32 @@
 ### Inicio importações
-from tkinter import messagebox
+from random import random
 import rasterio
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
+from rasterio.plot import show
 from pathlib import Path
 from tkinter import *
 from tkinter import filedialog
-from PIL import ImageTk, Image
+from tkinter import messagebox
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg)
+# Implement the default Matplotlib key bindings.
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
 ### Fim importações
 
 class Shoreline:
 
     global_path = ""
 
-    def apply_filter(path, value_fG, value_tM, value_fC):
+    def convert_image_png():
+        pass
 
-        file = Path(path).suffix
-        if(path == ""):
+    def apply_filter(value_fG, value_tM, value_fC, figure_filtered, image_filtered):
+
+        file = Path(Shoreline.global_path).suffix
+        if(Shoreline.global_path == ""):
             messagebox.showerror(
                 title="Nenhuma imagem selecionada",
                 message="Selecione uma imagem para que possa aplicar os filtos",
@@ -27,13 +37,14 @@ class Shoreline:
                 message="A extensão da imagem está incorreta. Extensão correta: .tif"
             )
         else:
-            banda = Shoreline.converter_imagem_array_numpy(path)
+            banda = Shoreline.converter_imagem_array_numpy(Shoreline.global_path)
             filtro_G = Shoreline.filtro_gaussiano(banda, value_fG)
             trans_M = Shoreline.transformacao_morfologica(filtro_G, value_tM)
             thre = Shoreline.threshold(trans_M, 0)
             image_final = Shoreline.extração_bordas(thre, value_fC)
 
-            Shoreline.exibir(image_final)
+            # Shoreline.exibir(image_final)
+            Shoreline.plot_image_filtered(figure_filtered, image_filtered, image_final)
 
     def open_image():
         dataset_path = filedialog.askopenfilename(
@@ -44,33 +55,38 @@ class Shoreline:
         Shoreline.global_path = dataset_path
 
         return dataset_path
- 
-    def configure_images(image_original, path):
-        image_original = Image.open(path)
-        image_resized = image_original.resize(size=[494, 334])
-        new_image = ImageTk.PhotoImage(image_resized)
 
-        return new_image
-
-    def configure_labels(image_label_original, image_label_filtrada):
+    def plot_image_original(figure_original, image_original):
         path = Shoreline.open_image()
-        Shoreline.configure_image_original(image_label_original, path)
-        Shoreline.configure_image_filtrada(image_label_filtrada, path)
 
-### Início Método
-    def configure_image_original(image_label_original, path):
+        ax = figure_original.add_subplot(111)
+        figure_original.subplots_adjust(bottom=0, right=1, top=1, left=0, wspace=0, hspace=0)
 
-        image = Shoreline.configure_images(image_label_original, path)
-        image_label_original.configure(image=image, width=493, height=333)
-        image_label_original.image=image
-### Fim Método 
+        with rasterio.open(r''f'{path}') as src_plot:
+            show(src_plot, ax=ax, cmap='gist_gray')
+        plt.close()
+        ax.set(title="",xticks=[], yticks=[])
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        image_original.draw()
 
-### Início Método
-    def configure_image_filtrada(image_label_filtrada, path):
-        image = Shoreline.configure_images(image_label_filtrada, path)
-        image_label_filtrada.configure(image=image, width=493, height=333)
-        image_label_filtrada.image=image
-### Fim Método 
+    def plot_image_filtered(figure_filtered, image_filtered, image_final):
+        # path = Shoreline.open_image()
+        
+        ax = figure_filtered.add_subplot(111)
+        figure_filtered.subplots_adjust(bottom=0, right=1, top=1, left=0, wspace=0, hspace=0)
+
+        with rasterio.open(r''f'{image_final}') as src_plot:
+            show(src_plot, ax=ax, cmap='gist_gray')
+        plt.close()
+        ax.set(title="",xticks=[], yticks=[])
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        image_filtered.draw()
 
 ### -------------------------------------------------------------------------###
 
@@ -112,8 +128,12 @@ class Shoreline:
     def extração_bordas(threshold, value):
         im_outCopy = np.uint8(threshold)
         image_final = cv2.Canny(im_outCopy,value,200)
+        
+        path_image_filtered = "assets/image/image_filtered.tif"
 
-        return image_final
+        cv2.imwrite(f"{path_image_filtered}", image_final)
+        
+        return path_image_filtered
     ### Fim Método 5
 
     def exibir(image):

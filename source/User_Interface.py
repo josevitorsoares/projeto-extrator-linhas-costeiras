@@ -1,13 +1,15 @@
 ### Inicio importações
-# from importlib.resources import path
 from tkinter import *
-from tkinter import filedialog
-from PIL import ImageTk, Image
-import Shoreline as shore 
+import tkinter
+from Shoreline import Shoreline 
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg)
+# Implement the default Matplotlib key bindings.
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
 ### Fim importações
 
 class ExtratorLinhasCosteiras():
-
     @staticmethod
     def construtor_interface():
         root = Tk()
@@ -31,14 +33,13 @@ class ExtratorLinhasCosteiras():
         menu = Menu(root)
 
         # File Menu
-
         file_menu = Menu(menu, tearoff=0)
         file_menu.add_command(
             label="Abrir Imagem", 
             command= lambda: 
-                shore.Shoreline.configure_labels(
-                    image_original,
-                    image_filtered)),
+                Shoreline.plot_image_original(
+                    figure_original,
+                    image_original)),
         file_menu.add_separator()
         file_menu.add_command(label="Sair")
         menu.add_cascade(label="Arquivo", menu=file_menu)
@@ -56,34 +57,27 @@ class ExtratorLinhasCosteiras():
             root, 
             text="Imagem Original",
             font="Fira 14")
+        
+        figure_original = Figure(figsize=(5, 3.3), dpi=100)
 
-        image_original = Label(
-            root,
-            text="Sua imagem abrirá aqui",
-            bd=1,
-            width=70,
-            height=22,
-            relief="raised")
+        image_original = FigureCanvasTkAgg(figure_original, master=root,)
+        image_original.draw()
 
         label_image_original.grid(row=0, columnspan=1)
-        image_original.grid(row=1, columnspan=1, padx=50)
+        image_original.get_tk_widget().grid(row=1, columnspan=1, padx=47,)
 
         label_image_filtered = Label(
             root, 
             text="Imagem Com os Filtros",
             font="Fira 14")
 
-        image_filtered = Label(
-            root,
-            text="Sua imagem abrirá aqui", 
-            width=70,
-            height=22,
-            bd=1,
-            relief="raised",
-        )
+        figure_filtered = Figure(figsize=(5, 3.3), dpi=100)
+
+        image_filtered = FigureCanvasTkAgg(figure_filtered, master=root, )
+        image_filtered.draw()
 
         label_image_filtered.grid(row=0, column=1, padx=0)
-        image_filtered.grid(row=1, column=1, padx=0)
+        image_filtered.get_tk_widget().grid(row=1, column=1, padx=0,)
         ### Fim Adição e posicionamento dos "images views" na janela
 
         ### Inicio Configurações de filtros
@@ -163,11 +157,12 @@ class ExtratorLinhasCosteiras():
             root,
             text="Aplicar Filtros",
             font="Fira 12",
-            command= lambda: shore.Shoreline.apply_filter(
-                path= shore.Shoreline.global_path,
+            command= lambda: Shoreline.apply_filter(
                 value_fG= scale_filtro_gaussiano.get(),
                 value_tM= scale_transformacao_morfologica.get(),
-                value_fC= scale_canny.get()
+                value_fC= scale_canny.get(),
+                figure_filtered= figure_filtered,
+                image_filtered= image_filtered
             )
         )
 
