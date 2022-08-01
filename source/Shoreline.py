@@ -9,11 +9,6 @@ from pathlib import Path
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
-from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg)
-# Implement the default Matplotlib key bindings.
-from matplotlib.backend_bases import key_press_handler
-from matplotlib.figure import Figure
 ### Fim importações
 
 class Shoreline:
@@ -40,7 +35,7 @@ class Shoreline:
             banda = Shoreline.converter_imagem_array_numpy(Shoreline.global_path)
             filtro_G = Shoreline.filtro_gaussiano(banda, value_fG)
             trans_M = Shoreline.transformacao_morfologica(filtro_G, value_tM)
-            thre = Shoreline.threshold(trans_M, 0)
+            thre = Shoreline.threshold(trans_M)
             image_final = Shoreline.extração_bordas(thre, value_fC)
 
             # Shoreline.exibir(image_final)
@@ -73,8 +68,6 @@ class Shoreline:
         image_original.draw()
 
     def plot_image_filtered(figure_filtered, image_filtered, image_final):
-        # path = Shoreline.open_image()
-        
         ax = figure_filtered.add_subplot(111)
         figure_filtered.subplots_adjust(bottom=0, right=1, top=1, left=0, wspace=0, hspace=0)
 
@@ -90,52 +83,59 @@ class Shoreline:
 
 ### -------------------------------------------------------------------------###
 
-### Início Método 2
+### Início Método
     def converter_imagem_array_numpy(path):
         image_banda = rasterio.open(path)
         banda = image_banda.read(1)
 
         return banda
-### Fim Método 2
+### Fim Método
 
-### Início Método 3
+### Início Método
     def filtro_gaussiano(banda, value):
     # value tem que ser positivo e ímpar
         if(value % 2 == 0):
             value += 1
-        
+            
         filtro_gaussiano = cv2.GaussianBlur(banda, (value, value), 0)
         return filtro_gaussiano
-### Fim Método 3
+### Fim Método
 
-    ### Início Método 4
+### Início Método
     def transformacao_morfologica(filtro_gaussiano, value):
 
         kernel = np.ones((value,value), np.uint8)
         transformacao_morfologica = cv2.morphologyEx(filtro_gaussiano, cv2.MORPH_OPEN, kernel)
 
         return transformacao_morfologica
-### Fim Método 4
+### Fim Método
 
-### Início Método 5
-    def threshold(transformacao_morfologica, value):
-        _,threshold = cv2.threshold(transformacao_morfologica, value, 255, cv2.THRESH_BINARY_INV);
+### Início Método
+    def threshold(transformacao_morfologica):
+        _,threshold = cv2.threshold(transformacao_morfologica, 0, 255, cv2.THRESH_BINARY_INV);
 
         return threshold
-### Fim Método 5
+### Fim Método
 
-### Início Método 5
+### Início Método
     def extração_bordas(threshold, value):
+        path_image_filtered = "assets/image/image_filtered.tiff"
+
         im_outCopy = np.uint8(threshold)
         image_final = cv2.Canny(im_outCopy,value,200)
-        
-        path_image_filtered = "assets/image/image_filtered.tif"
+        image_original = rasterio.open(Shoreline.global_path)
 
+        metadados = image_original.profile
+        
         cv2.imwrite(f"{path_image_filtered}", image_final)
+
+        with rasterio.open(path_image_filtered, 'w', **metadados) as output_dataset:
+            output_dataset.write(image_final, 1)
+
         
         return path_image_filtered
     ### Fim Método 5
 
-    def exibir(image):
-        cv2.imshow("Bordas", image)
-        cv2.waitKey(0)
+    # def exibir(image):
+    #     cv2.imshow("Bordas", image)
+    #     cv2.waitKey(0)

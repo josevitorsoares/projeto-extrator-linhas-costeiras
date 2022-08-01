@@ -1,6 +1,5 @@
 ### Inicio importações
 from tkinter import *
-import tkinter
 from Shoreline import Shoreline 
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg)
@@ -68,7 +67,7 @@ class ExtratorLinhasCosteiras():
 
         label_image_filtered = Label(
             root, 
-            text="Imagem Com os Filtros",
+            text="Linha de Costa Extraída",
             font="Fira 14")
 
         figure_filtered = Figure(figsize=(5, 3.3), dpi=100)
