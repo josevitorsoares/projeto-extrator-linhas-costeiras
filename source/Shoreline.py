@@ -14,38 +14,13 @@ from tkinter import messagebox
 class Shoreline:
 
     global_path = ""
-
-    def convert_image_png():
-        pass
-
-    def apply_filter(value_fG, value_tM, value_fC, figure_filtered, image_filtered):
-
-        file = Path(Shoreline.global_path).suffix
-        if(Shoreline.global_path == ""):
-            messagebox.showerror(
-                title="Nenhuma imagem selecionada",
-                message="Selecione uma imagem para que possa aplicar os filtos",
-            )
-        elif(file != ".tif"):
-            messagebox.showerror(
-                title="Erro no formato da Imagem",
-                message="A extensão da imagem está incorreta. Extensão correta: .tif"
-            )
-        else:
-            banda = Shoreline.converter_imagem_array_numpy(Shoreline.global_path)
-            filtro_G = Shoreline.filtro_gaussiano(banda, value_fG)
-            trans_M = Shoreline.transformacao_morfologica(filtro_G, value_tM)
-            thre = Shoreline.threshold(trans_M)
-            image_final = Shoreline.extração_bordas(thre, value_fC)
-
-            # Shoreline.exibir(image_final)
-            Shoreline.plot_image_filtered(figure_filtered, image_filtered, image_final)
+    isApplied = False
 
     def open_image():
         dataset_path = filedialog.askopenfilename(
         initialdir = "/Downloads/",
         title = "Selecione a imagem",
-        filetypes = (("Arquivos tif", "*.tif"), ("Todos os arquivos", "*.*")))
+        filetypes = (("Arquivos tif", "*.tif"), ("Arquivos tiff", "*.tiff")),)
     
         Shoreline.global_path = dataset_path
 
@@ -132,10 +107,31 @@ class Shoreline:
         with rasterio.open(path_image_filtered, 'w', **metadados) as output_dataset:
             output_dataset.write(image_final, 1)
 
-        
         return path_image_filtered
     ### Fim Método 5
 
+    def apply_filter(value_fG, value_tM, value_fC, figure_filtered, image_filtered):
+        Shoreline.isApplied = True
+        file = Path(Shoreline.global_path).suffix
+        if(Shoreline.global_path == ""):
+            messagebox.showerror(
+                title="Nenhuma imagem selecionada",
+                message="Selecione uma imagem para que possa aplicar os filtos.",
+            )
+        elif(file != ".tif"):
+            messagebox.showerror(
+                title="Erro no formato da Imagem",
+                message="A extensão da imagem está incorreta. Extensão correta: .tif."
+            )
+        else:
+            banda = Shoreline.converter_imagem_array_numpy(Shoreline.global_path)
+            filtro_G = Shoreline.filtro_gaussiano(banda, value_fG)
+            trans_M = Shoreline.transformacao_morfologica(filtro_G, value_tM)
+            thre = Shoreline.threshold(trans_M)
+            image_final = Shoreline.extração_bordas(thre, value_fC)
+
+            # Shoreline.exibir(image_final)
+            Shoreline.plot_image_filtered(figure_filtered, image_filtered, image_final)
     # def exibir(image):
     #     cv2.imshow("Bordas", image)
     #     cv2.waitKey(0)

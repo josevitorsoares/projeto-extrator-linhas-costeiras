@@ -1,9 +1,8 @@
 ### Inicio importações
 from tkinter import *
 from Shoreline import Shoreline 
-from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg)
-# Implement the default Matplotlib key bindings.
+from Convert_Line import ConvertLine
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 ### Fim importações
@@ -168,7 +167,8 @@ class ExtratorLinhasCosteiras():
         button_exportar = Button(
             root,
             text="Exportar Imagem com os Filtros",
-            font="Fira 12"
+            font="Fira 12",
+            command= lambda: ConvertLine.exportShapeFile()
         )
 
         button_reverter = Button(
