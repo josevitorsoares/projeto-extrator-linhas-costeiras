@@ -1,6 +1,7 @@
+import os
 import numpy as np
 import itertools
-import zipfile
+# import zipfile
 import sys
 from tkinter import messagebox
 from tkinter import filedialog
@@ -73,40 +74,36 @@ class ConvertLine:
                 multiline.AddGeometry(line)
 
         shpDriver = ogr.GetDriverByName("ESRI Shapefile")
-    
-        outDataSource = shpDriver.CreateDataSource('assets/shape_file/shape_file.shp')
-        outLayer = outDataSource.CreateLayer('assets/shape_file/shape_file.shp', geom_type=ogr.wkbMultiLineString )
-        featureDefn = outLayer.GetLayerDefn()
-        outFeature = ogr.Feature(featureDefn)
-        outFeature.SetGeometry(multiline)
-        outLayer.CreateFeature(outFeature)
-
-        ConvertLine.saveAsFile()
         
-        print("Funfou")
+        output_path = ConvertLine.getPathForSaveFiles()
 
-    def saveAsFile():
-        files=filedialog.asksaveasfile(
-            mode="wb", 
-            title="Salvar Shape File", 
-            filetypes = [(("Arquivos Zip", "*.zip"))],
-            initialfile="shape_file.zip",
+        if os.path.exists(output_path):
+            shpDriver.DeleteDataSource(output_path)
+            outDataSource = shpDriver.CreateDataSource(output_path + '/shape_file.shp')
+            outLayer = outDataSource.CreateLayer(output_path + '/shape_file.shp', geom_type=ogr.wkbMultiLineString )
+            featureDefn = outLayer.GetLayerDefn()
+            outFeature = ogr.Feature(featureDefn)
+            outFeature.SetGeometry(multiline)
+            outLayer.CreateFeature(outFeature)
+            shpDriver = None
+
+            messagebox.showinfo(
+                title="Shape File salvo com sucesso",
+                message="Os arquivos Shape File foram salvos com sucesso.",
+            )
+        else:
+            messagebox.showerror(
+                title="Caminho Inválido",
+                message="O local selecionado para salvar o Shape File é inválido.",
+            )
+
+
+    def getPathForSaveFiles():
+        path_files = filedialog.askdirectory(
+                title="Salvar Shape File",
         )
         
-        file_compressed = zipfile.ZipFile('assets/shape_file/shape_file.zip', "w", zipfile.ZIP_DEFLATED)
-        file_compressed.write("assets/shape_file/shape_file.dbf")
-        file_compressed.write("assets/shape_file/shape_file.shx")
-        file_compressed.write("assets/shape_file/shape_file.shp")
-
-        file_zip = open("assets/shape_file/shape_file.zip", "rb").read()
-        files.write(file_zip)
-        
-        files.close() 
-
-        messagebox.showinfo(
-                title="Shape File salvo com sucesso",
-                message="O arquivo shape_file.zip foi salvo com sucesso.",
-            )
+        return path_files
 
     def exportShapeFile():
         if(Shoreline.global_path == ""):
