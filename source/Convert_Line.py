@@ -5,7 +5,7 @@ import itertools
 import sys
 from tkinter import messagebox
 from tkinter import filedialog
-from shapely.geometry import LineString, asLineString
+from shapely.geometry import LineString
 from math import sqrt,ceil
 from osgeo import gdal,ogr
 from Shoreline import Shoreline
@@ -17,7 +17,8 @@ class ConvertLine:
         img = gdal.Open(rasterIn)
         proj = img.GetProjection()
         band = img.GetRasterBand(1)
-        array = np.array(img.ReadAsArray() * 255, dtype = np.uint8)
+        # array = band.ReadAsArray()
+        array = np.array(band.ReadAsArray() * 255, dtype = np.uint8)
     
         return array
     
@@ -41,7 +42,13 @@ class ConvertLine:
         coordY = originY+pixelHeight*yOffset
         return coordX, coordY
 
-    def convertToShapeFile(rasterIn, array, points):
+    def convertToShapeFile():
+        
+        rasterIn = Shoreline.global_path
+        array = ConvertLine.imageToArray(rasterIn)
+        points = ConvertLine.capturePoints(array)
+        line = ConvertLine.convertLineString(points)
+        
         #maxima distancia entre os pontos
         raster = gdal.Open(rasterIn)
         geotransform = raster.GetGeoTransform()
@@ -79,23 +86,24 @@ class ConvertLine:
 
         if os.path.exists(output_path):
             shpDriver.DeleteDataSource(output_path)
-            outDataSource = shpDriver.CreateDataSource(output_path + '/shape_file.shp')
-            outLayer = outDataSource.CreateLayer(output_path + '/shape_file.shp', geom_type=ogr.wkbMultiLineString )
-            featureDefn = outLayer.GetLayerDefn()
-            outFeature = ogr.Feature(featureDefn)
-            outFeature.SetGeometry(multiline)
-            outLayer.CreateFeature(outFeature)
-            shpDriver = None
 
-            messagebox.showinfo(
-                title="Shape File salvo com sucesso",
-                message="Os arquivos Shape File foram salvos com sucesso.",
-            )
-        else:
-            messagebox.showerror(
-                title="Caminho Inválido",
-                message="O local selecionado para salvar o Shape File é inválido.",
-            )
+        outDataSource = shpDriver.CreateDataSource(output_path + '/shape_file.shp')
+        outLayer = outDataSource.CreateLayer(output_path + '/shape_file.shp', geom_type=ogr.wkbMultiLineString25D, srs = None)
+        featureDefn = outLayer.GetLayerDefn()
+        outFeature = ogr.Feature(featureDefn)
+        outFeature.SetGeometry(multiline)
+        outLayer.CreateFeature(outFeature)
+        
+        # gdal.Polygonize(array, None, outLayer, -1, [], callback=None)
+        # outLayer.SyncToDisk()
+        
+        shpDriver = None
+        print("chegou ate aqui: Final do método convertToShapeFile")
+
+        messagebox.showinfo(
+            title="Shape File salvo com sucesso",
+            message="Os arquivos Shape File foram salvos com sucesso.",
+        )
 
 
     def getPathForSaveFiles():
@@ -117,8 +125,4 @@ class ConvertLine:
                 message="Aplique os filtros na imagem para que possa exportá-la.",
             )
         else:
-            rasterIn = Shoreline.global_path
-            array = ConvertLine.imageToArray(rasterIn)
-            points = ConvertLine.capturePoints(array)
-            line = ConvertLine.convertLineString(points)
-            ConvertLine.convertToShapeFile(rasterIn, array, points)
+            ConvertLine.convertToShapeFile()

@@ -158,7 +158,6 @@ class ExtratorLinhasCosteiras():
             command= lambda: Shoreline.apply_filter(
                 value_fG= scale_filtro_gaussiano.get(),
                 value_tM= scale_transformacao_morfologica.get(),
-                value_fC= scale_canny.get(),
                 figure_filtered= figure_filtered,
                 image_filtered= image_filtered
             )
@@ -166,7 +165,7 @@ class ExtratorLinhasCosteiras():
 
         button_exportar = Button(
             root,
-            text="Exportar Imagem com os Filtros",
+            text="Exportar GEOTiff",
             font="Fira 12",
             command= lambda: ConvertLine.exportShapeFile()
         )
@@ -177,8 +176,8 @@ class ExtratorLinhasCosteiras():
             font="Fira 12",
         )
 
-        button_reverter.grid(row=6, column=0, pady=30)
-        button_aplicar.grid(row=6, columnspan=3, padx=0)
+        # button_reverter.grid(row=6, column=0, pady=30)
+        button_aplicar.grid(row=6, column=0, padx=0, pady=20)
         button_exportar.grid(row=6, column=1,columnspan=2, padx=0)
         ### Fim Botões
 
