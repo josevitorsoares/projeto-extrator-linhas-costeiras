@@ -1,7 +1,6 @@
 ### Inicio importações
 from tkinter import *
 from Shoreline import Shoreline 
-from Convert_Line import ConvertLine
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
@@ -126,28 +125,6 @@ class ExtratorLinhasCosteiras():
         scale_transformacao_morfologica.grid(row=5, columnspan=2, padx=0)
         ### Fim Filtro Tras. Morforlogica
 
-        ### Inicio Filtro Tras. Morforlogica
-        label_canny = Label(
-            root,
-            text="Filtro Canny",
-            font="Fira 14"
-        )
-
-        scale_canny = Scale(
-            root,
-            from_=100,
-            to=200,
-            width=20,
-            orient=HORIZONTAL,
-            resolution=1,
-            font="Fira 12",
-            length=200,
-        )
-
-        label_canny.grid(row=4, column=1,)
-        scale_canny.grid(row=5, column=1, pady=0)
-        ### Fim Filtro Tras. Morforlogica
-
         ### Fim Configurações de filtros
 
         ### Inicio Botões
@@ -165,9 +142,9 @@ class ExtratorLinhasCosteiras():
 
         button_exportar = Button(
             root,
-            text="Exportar GEOTiff",
+            text="Exportar GeoTIFF",
             font="Fira 12",
-            command= lambda: ConvertLine.exportShapeFile()
+            # command= lambda: ConvertLine.exportShapeFile()
         )
 
         button_reverter = Button(
