@@ -85,7 +85,7 @@ class Shoreline:
         return threshold
 
     def extração_bordas(threshold):
-        path_image_filtered = "assets/image/edges_output.tiff"
+        path_image_filtered = "assets/GeoTIFF/edges_output.tiff"
         
         Filter_Sobel.Sobel(Shoreline.global_path, threshold, path_image_filtered)
         
