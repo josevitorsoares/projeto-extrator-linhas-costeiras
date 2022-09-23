@@ -99,7 +99,7 @@ class Shoreline:
                 title="Nenhuma imagem selecionada",
                 message="Selecione uma imagem para que possa aplicar os filtos.",
             )
-        elif(file != ".tif"):
+        elif(file != ".tiff" and file != ".tif"):
             messagebox.showerror(
                 title="Erro no formato da Imagem",
                 message="A extensão da imagem está incorreta. Extensão correta: .tif ou .tiff"
