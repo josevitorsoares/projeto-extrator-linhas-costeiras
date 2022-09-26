@@ -1,11 +1,21 @@
+from threading import Thread
 import numpy as np
 import rasterio
+import cv2
 
-class Filter_Sobel:
+class Filter_Sobel(Thread):
 
-    def Sobel(raster, threshold, path_output):
+    def __init__(self, raster, threshold, path_output):
+        super().__init__()
+        self.raster = raster
+        self.threshold = threshold
+        self.path_output = path_output
 
-        image = rasterio.open(raster)
+        self.Sobel()
+
+    def Sobel(self):
+
+        image = rasterio.open(self.raster)
 
         #define the vertical filter
         vertical_filter = [[-1,-2,-1], [0,0,0], [1,2,1]]
@@ -13,7 +23,7 @@ class Filter_Sobel:
         #define the horizontal filter
         horizontal_filter = [[-1,0,1], [-2,0,2], [-1,0,1]]
 
-        image_original = np.expand_dims(threshold, axis=2)
+        image_original = np.expand_dims(self.threshold, axis=2)
         altura, largura, banda = image_original.shape
 
         #initialize the edges image
@@ -45,7 +55,11 @@ class Filter_Sobel:
         #remap the values in the 0-1 range in case they went out of bounds
         edges_image = edges_image/edges_image.max()
 
+        # cv2.imwrite(f"assets/GeoTIFF/edges_output.tiff", edges_image)
+
         metadados = image.profile
 
-        with rasterio.open(f'{path_output}', 'w', **metadados) as output_dataset:
+        # with rasterio.open(f'{path_output}', 'w', **metadados) as output_dataset:
+        #     output_dataset.write(np.moveaxis(edges_image, [0, 1, 2], [1, 2, 0]))
+        with rasterio.open(f'{self.path_output}', 'w', **metadados) as output_dataset:
             output_dataset.write(np.moveaxis(edges_image, [0, 1, 2], [1, 2, 0]))

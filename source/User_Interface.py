@@ -2,38 +2,40 @@
 # https://github.com/ParthJadhav/Tkinter-Designer
 
 ### Inicio importações
-from tkinter import *
+import tkinter as tk
+from tkinter import ttk
 # Explicit imports to satisfy Flake8
-from tkinter import HORIZONTAL, Scale, Tk, Canvas, Entry, Text, Button, PhotoImage
+from tkinter import HORIZONTAL, Scale, Tk, Canvas, Button
 from Shoreline import Shoreline 
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
-from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
 ### Fim importações
 
-class ExtratorLinhasCosteiras():
-    @staticmethod
-    def construtor_interface():
-        root = Tk()
-        root.title("Extrator de Linhas Costeiras")
-
+class ExtratorLinhasCosteiras(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Extrator de Linhas Costeiras")
         ### Inicio Configuarações de dimensões e posicionamento da janela
-        height = 570
+        height = 590
         width = 1140
 
-        width_screen = root.winfo_screenwidth()
-        height_screen = root.winfo_screenheight()
+        width_screen = self.winfo_screenwidth()
+        height_screen = self.winfo_screenheight()
 
         posiX = (width_screen/2) - (width/2)
         posiY = ((height_screen-(height_screen * 0.08))/2) - (height/2)
 
-        root.geometry("%dx%d+%d+%d" % (width, height, posiX, posiY))
-        root.resizable(False, False)
-        root.configure(bg = "#EBEBEB")
+        self.geometry("%dx%d+%d+%d" % (width, height, posiX, posiY))
+        self.resizable(False, False)
+        self.configure(bg = "#EBEBEB")
+
+        self.construtor_interface()
         ### Fim configuarações de dimensões e posicionamento da janela
 
+    # @staticmethod
+    def construtor_interface(self):
         canvas = Canvas(
-            root,
+            self,
             bg = "#EBEBEB",
             height = 560,
             width = 1140,
@@ -53,14 +55,14 @@ class ExtratorLinhasCosteiras():
         )
 
         ### Inicio Adicionando o menu a janela
-        menu = Menu(root)
+        menu = tk.Menu(self)
 
         # File Menu
-        file_menu = Menu(menu, tearoff=0)
+        file_menu = tk.Menu(menu, tearoff=0)
         file_menu.add_command(
             label="Abrir Imagem", 
             command= lambda: 
-                Shoreline.plot_image_original(
+                Shoreline.plot_image_original(Shoreline,
                     figure_original,
                     image_original)),
         file_menu.add_separator()
@@ -68,11 +70,11 @@ class ExtratorLinhasCosteiras():
         menu.add_cascade(label="Arquivo", menu=file_menu)
 
         # Help Menu
-        help_menu = Menu(menu, tearoff=0)
+        help_menu = tk.Menu(menu, tearoff=0)
         help_menu.add_command(label="Sobre")
         menu.add_cascade(label="Ajuda", menu=help_menu)
 
-        root.config(menu=menu)
+        self.config(menu=menu)
         ### Fim adicionando o menu a janela
 
         ### Inicio Adição e posicionamento dos "images views" na janela
@@ -93,7 +95,7 @@ class ExtratorLinhasCosteiras():
             linewidth=2, 
             )
 
-        image_original = FigureCanvasTkAgg(figure_original, master=root)
+        image_original = FigureCanvasTkAgg(figure_original, master=self)
         image_original.draw()
 
         image_original.get_tk_widget().place(
@@ -120,10 +122,9 @@ class ExtratorLinhasCosteiras():
             linewidth=2,
         )
 
-        image_filtered = FigureCanvasTkAgg(figure_filtered, master=root)
+        image_filtered = FigureCanvasTkAgg(figure_filtered, master=self)
         image_filtered.draw()
 
-        # image_filtered.get_tk_widget().grid(row=1, column=1, padx=0,)
         image_filtered.get_tk_widget().place(
             x=582,
             y=77,
@@ -136,7 +137,7 @@ class ExtratorLinhasCosteiras():
 
         ### Inicio Filtro Gaussiano
         scale_filtro_gaussiano = Scale(
-            root,
+            self,
             from_=1,
             to=255,
             width=6,
@@ -172,7 +173,7 @@ class ExtratorLinhasCosteiras():
 
         ### Inicio Filtro Tras. Morforlogica
         scale_transformacao_morfologica = Scale(
-            root,
+            self,
             from_=0,
             to=255,
             width=6,
@@ -207,11 +208,24 @@ class ExtratorLinhasCosteiras():
 
         ### Fim Configurações de filtros
 
+        progress_bar = ttk.Progressbar(
+                self,
+                orient='horizontal',
+                mode='indeterminate',
+                length=280, 
+        )
+
+        progress_bar.place(
+            x=64,
+            y=530,
+            width=312,
+            height=10,
+        )
+
         ### Inicio Botões
         button_aplicar = Button(
             text="Aplicar Filtros",
             font=("Inter Medium", 20 * -1),
-            bg="#232429",
             borderwidth=0,
             highlightthickness=0,
             background="#1D5FFE",
@@ -219,12 +233,13 @@ class ExtratorLinhasCosteiras():
             relief="flat",
             activebackground="#1D5FFE",
             activeforeground="#FFFFFF",
-            command= lambda: Shoreline.apply_filter(
+            command= lambda: progress_bar.start & Shoreline.apply_filter(Shoreline,
                 value_fG= scale_filtro_gaussiano.get(),
                 value_tM= scale_transformacao_morfologica.get(),
                 figure_filtered= figure_filtered,
-                image_filtered= image_filtered
-            )
+                image_filtered= image_filtered,
+                progress_bar=progress_bar
+                )
         )
 
         button_aplicar.place(
@@ -237,12 +252,10 @@ class ExtratorLinhasCosteiras():
         button_exportar = Button(
             text="Exportar GeoTIFF",
             font=("Inter Medium", 20 * -1),
-            bg="#232429",
             borderwidth=0,
             highlightthickness=0,
             background="#35C769",
             foreground="#FFFFFF",
-            command=lambda: print("button_2 clicked"),
             relief="flat",
             activebackground="#35C769",
             activeforeground="#FFFFFF",
@@ -257,7 +270,6 @@ class ExtratorLinhasCosteiras():
         )
         ### Fim Botões
 
-        root.mainloop()
-
-execute = ExtratorLinhasCosteiras()
-execute.construtor_interface()
+if __name__ == "__main__":
+    app = ExtratorLinhasCosteiras()
+    app.mainloop()
