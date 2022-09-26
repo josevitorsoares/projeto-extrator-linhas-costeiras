@@ -233,7 +233,7 @@ class ExtratorLinhasCosteiras(tk.Tk):
             relief="flat",
             activebackground="#1D5FFE",
             activeforeground="#FFFFFF",
-            command= lambda: progress_bar.start & Shoreline.apply_filter(Shoreline,
+            command= lambda: Shoreline.apply_filter(Shoreline,
                 value_fG= scale_filtro_gaussiano.get(),
                 value_tM= scale_transformacao_morfologica.get(),
                 figure_filtered= figure_filtered,
