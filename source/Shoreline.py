@@ -11,13 +11,12 @@ from tkinter import messagebox
 from Filtro_Sobel import Filter_Sobel
 ### Fim importações
 
-class Shoreline:
+class Shoreline():
+
+    global_path = ""
 
     def __init__(self):
         super().__init__()
-
-        self.global_path = ""
-        self.isApplied = False
 
     def open_image(self):
         dataset_path = filedialog.askopenfilename(
@@ -103,13 +102,13 @@ class Shoreline:
             progress_bar.stop()
     
     def apply_filter(self, value_fG, value_tM, figure_filtered, image_filtered, progress_bar):
-        self.isApplied = True
         file_extension = Path(self.global_path).suffix
         if(self.global_path == ""):
             messagebox.showerror(
                 title="Nenhuma imagem selecionada",
-                message="Selecione uma imagem para que possa aplicar os filtos.",
+                message="Selecione uma imagem para que possa aplicar os filtos",
             )
+            pass
         elif(file_extension != ".tiff" and file_extension != ".tif"):
             messagebox.showerror(
                 title="Erro no formato da Imagem",

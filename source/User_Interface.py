@@ -32,7 +32,6 @@ class ExtratorLinhasCosteiras(tk.Tk):
         self.construtor_interface()
         ### Fim configuarações de dimensões e posicionamento da janela
 
-    # @staticmethod
     def construtor_interface(self):
         canvas = Canvas(
             self,
@@ -66,7 +65,10 @@ class ExtratorLinhasCosteiras(tk.Tk):
                     figure_original,
                     image_original)),
         file_menu.add_separator()
-        file_menu.add_command(label="Sair")
+        file_menu.add_command(
+            label="Sair",
+            command= lambda: self.destroy()
+            )
         menu.add_cascade(label="Arquivo", menu=file_menu)
 
         # Help Menu
