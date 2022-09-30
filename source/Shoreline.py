@@ -1,4 +1,5 @@
 ### Inicio importações
+import time
 import rasterio
 import cv2
 import numpy as np
@@ -65,7 +66,7 @@ class Shoreline():
         return banda
 
     def filtro_gaussiano(self, banda, value):
-    # value tem que ser positivo e ímpar
+        # value tem que ser positivo e ímpar
         if(value % 2 == 0):
             value += 1
             
@@ -84,24 +85,23 @@ class Shoreline():
 
         return threshold
 
-    def extração_bordas(self, threshold, progress_bar):
+    def extração_bordas(self, threshold):
         path_image_filtered = "assets/GeoTIFF/edges_output.tiff"
-        teste = Filter_Sobel(self.global_path, threshold, path_image_filtered)
-        
-        teste.start()
-        self.monitor(self, teste, progress_bar)
+        Filter_Sobel(self.global_path, threshold, path_image_filtered)
 
         return path_image_filtered  
 
-    def monitor(self, thread, progress_bar):
-        progress_bar.start()
-        if(thread.is_alive()):
-            # check the thread every 100ms
-            self.after(100, lambda: self.monitor(thread))
-        else:
-            progress_bar.stop()
+    def plot_progress_bar(interface, progress_bar):
+        progress_bar['value'] = 0
+        time.sleep(0.5)
+        while progress_bar['value'] < 100:
+            progress_bar['value'] += 20
+            #root.update_idletasks()
+            interface.update()
+            time.sleep(0.5)
+        progress_bar['value'] = 0
     
-    def apply_filter(self, value_fG, value_tM, figure_filtered, image_filtered, progress_bar):
+    def apply_filter(self, value_fG, value_tM, figure_filtered, image_filtered, progress_bar, interface):
         file_extension = Path(self.global_path).suffix
         if(self.global_path == ""):
             messagebox.showerror(
@@ -115,9 +115,10 @@ class Shoreline():
                 message="A extensão da imagem está incorreta. Extensão correta: .tif ou .tiff"
             )
         else: 
+            self.plot_progress_bar(interface, progress_bar)
             banda = self.converter_imagem_array_numpy(self, self.global_path)
             filtro_G = self.filtro_gaussiano(self,banda, value_fG)
             trans_M = self.transformacao_morfologica(self,filtro_G, value_tM)
             threshold = self.threshold(self, trans_M)
-            image_final = self.extração_bordas(self, threshold, progress_bar)
+            image_final = self.extração_bordas(self, threshold)
             self.plot_image_filtered(self, figure_filtered, image_filtered, image_final)

@@ -2,10 +2,12 @@
 # https://github.com/ParthJadhav/Tkinter-Designer
 
 ### Inicio importações
+import time
 import tkinter as tk
 from tkinter import ttk
 # Explicit imports to satisfy Flake8
-from tkinter import HORIZONTAL, Scale, Tk, Canvas, Button
+from tkinter import HORIZONTAL, Scale, Canvas, Button
+from tkinter import messagebox
 from Shoreline import Shoreline 
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 from matplotlib.figure import Figure
@@ -213,7 +215,7 @@ class ExtratorLinhasCosteiras(tk.Tk):
         progress_bar = ttk.Progressbar(
                 self,
                 orient='horizontal',
-                mode='indeterminate',
+                mode='determinate',
                 length=280, 
         )
 
@@ -223,6 +225,15 @@ class ExtratorLinhasCosteiras(tk.Tk):
             width=312,
             height=10,
         )
+
+        # def plot_progress_bar():
+        #     if(Shoreline.global_path == ""):
+        #         messagebox.showerror(
+        #         title="Nenhuma imagem selecionada",
+        #         message="Selecione uma imagem para que possa aplicar os filtos",
+        #         )
+        #     else:
+                
 
         ### Inicio Botões
         button_aplicar = Button(
@@ -235,13 +246,15 @@ class ExtratorLinhasCosteiras(tk.Tk):
             relief="flat",
             activebackground="#1D5FFE",
             activeforeground="#FFFFFF",
-            command= lambda: Shoreline.apply_filter(Shoreline,
+            command= lambda: [
+                Shoreline.apply_filter(Shoreline,
                 value_fG= scale_filtro_gaussiano.get(),
                 value_tM= scale_transformacao_morfologica.get(),
                 figure_filtered= figure_filtered,
                 image_filtered= image_filtered,
-                progress_bar=progress_bar
-                )
+                progress_bar= progress_bar,
+                interface=self
+                )]
         )
 
         button_aplicar.place(

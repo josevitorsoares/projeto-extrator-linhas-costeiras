@@ -3,7 +3,7 @@ import numpy as np
 import rasterio
 import cv2
 
-class Filter_Sobel(Thread):
+class Filter_Sobel:
 
     def __init__(self, raster, threshold, path_output):
         super().__init__()
@@ -59,7 +59,5 @@ class Filter_Sobel(Thread):
 
         metadados = image.profile
 
-        # with rasterio.open(f'{path_output}', 'w', **metadados) as output_dataset:
-        #     output_dataset.write(np.moveaxis(edges_image, [0, 1, 2], [1, 2, 0]))
         with rasterio.open(f'{self.path_output}', 'w', **metadados) as output_dataset:
             output_dataset.write(np.moveaxis(edges_image, [0, 1, 2], [1, 2, 0]))
