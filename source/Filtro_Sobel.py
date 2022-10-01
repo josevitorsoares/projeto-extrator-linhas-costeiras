@@ -1,7 +1,5 @@
-from threading import Thread
 import numpy as np
 import rasterio
-import cv2
 
 class Filter_Sobel:
 
@@ -54,8 +52,6 @@ class Filter_Sobel:
 
         #remap the values in the 0-1 range in case they went out of bounds
         edges_image = edges_image/edges_image.max()
-
-        # cv2.imwrite(f"assets/GeoTIFF/edges_output.tiff", edges_image)
 
         metadados = image.profile
 

@@ -2,15 +2,14 @@
 # https://github.com/ParthJadhav/Tkinter-Designer
 
 ### Inicio importações
-import time
 import tkinter as tk
 from tkinter import ttk
 # Explicit imports to satisfy Flake8
 from tkinter import HORIZONTAL, Scale, Canvas, Button
-from tkinter import messagebox
-from Shoreline import Shoreline 
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 from matplotlib.figure import Figure
+from Shoreline import Shoreline
+from GeoTIFF import GeoTIFF 
 ### Fim importações
 
 class ExtratorLinhasCosteiras(tk.Tk):
@@ -224,16 +223,7 @@ class ExtratorLinhasCosteiras(tk.Tk):
             y=530,
             width=312,
             height=10,
-        )
-
-        # def plot_progress_bar():
-        #     if(Shoreline.global_path == ""):
-        #         messagebox.showerror(
-        #         title="Nenhuma imagem selecionada",
-        #         message="Selecione uma imagem para que possa aplicar os filtos",
-        #         )
-        #     else:
-                
+        )       
 
         ### Inicio Botões
         button_aplicar = Button(
@@ -274,7 +264,7 @@ class ExtratorLinhasCosteiras(tk.Tk):
             relief="flat",
             activebackground="#35C769",
             activeforeground="#FFFFFF",
-            # command= lambda: ConvertLine.exportShapeFile()
+            command= lambda: GeoTIFF(Shoreline.global_path)
         )
 
         button_exportar.place(

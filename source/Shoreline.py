@@ -12,10 +12,11 @@ from tkinter import messagebox
 from Filtro_Sobel import Filter_Sobel
 ### Fim importações
 
-class Shoreline():
+class Shoreline:
 
     global_path = ""
-
+    isApplied = False
+    
     def __init__(self):
         super().__init__()
 
@@ -59,6 +60,16 @@ class Shoreline():
         ax.spines["bottom"].set_visible(False)
         image_filtered.draw()
 
+    def plot_progress_bar(interface, progress_bar):
+        progress_bar['value'] = 0
+        time.sleep(0.5)
+        while progress_bar['value'] < 100:
+            progress_bar['value'] += 20
+            #root.update_idletasks()
+            interface.update()
+            time.sleep(0.5)
+        progress_bar['value'] = 0
+
     def converter_imagem_array_numpy(self, path):
         image_banda = rasterio.open(path)
         banda = image_banda.read(1)
@@ -90,16 +101,6 @@ class Shoreline():
         Filter_Sobel(self.global_path, threshold, path_image_filtered)
 
         return path_image_filtered  
-
-    def plot_progress_bar(interface, progress_bar):
-        progress_bar['value'] = 0
-        time.sleep(0.5)
-        while progress_bar['value'] < 100:
-            progress_bar['value'] += 20
-            #root.update_idletasks()
-            interface.update()
-            time.sleep(0.5)
-        progress_bar['value'] = 0
     
     def apply_filter(self, value_fG, value_tM, figure_filtered, image_filtered, progress_bar, interface):
         file_extension = Path(self.global_path).suffix
@@ -115,6 +116,7 @@ class Shoreline():
                 message="A extensão da imagem está incorreta. Extensão correta: .tif ou .tiff"
             )
         else: 
+            self.isApplied = True
             self.plot_progress_bar(interface, progress_bar)
             banda = self.converter_imagem_array_numpy(self, self.global_path)
             filtro_G = self.filtro_gaussiano(self,banda, value_fG)
