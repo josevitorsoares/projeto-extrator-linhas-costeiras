@@ -141,7 +141,7 @@ class ExtratorLinhasCosteiras(tk.Tk):
         ### Inicio Filtro Gaussiano
         scale_filtro_gaussiano = Scale(
             self,
-            from_=1,
+            from_=0,
             to=255,
             width=6,
             orient=HORIZONTAL,

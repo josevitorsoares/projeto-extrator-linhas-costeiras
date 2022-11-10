@@ -71,7 +71,7 @@ class Shoreline:
         progress_bar['value'] = 0
 
     def converter_imagem_array_numpy(self, path):
-        image_banda = rasterio.open(path)
+        image_banda = rasterio.open(rf"{path}")
         banda = image_banda.read(1)
         
         return banda
@@ -80,16 +80,18 @@ class Shoreline:
         # value tem que ser positivo e ímpar
         if(value % 2 == 0):
             value += 1
-            
-        filtro_gaussiano = cv2.GaussianBlur(banda, (value, value), 0)
-        return filtro_gaussiano
+            filtro_gaussiano = cv2.GaussianBlur(banda, (value, value), 0)
+
+            return filtro_gaussiano
 
     def transformacao_morfologica(self, filtro_gaussiano, value):
+        if(value == 0):
+            return filtro_gaussiano
+        else:
+            kernel = np.ones((value,value), np.uint8)
+            transformacao_morfologica = cv2.morphologyEx(filtro_gaussiano, cv2.MORPH_OPEN, kernel)
 
-        kernel = np.ones((value,value), np.uint8)
-        transformacao_morfologica = cv2.morphologyEx(filtro_gaussiano, cv2.MORPH_OPEN, kernel)
-
-        return transformacao_morfologica
+            return transformacao_morfologica
 
     def threshold(self, transformacao_morfologica):
         _,threshold = cv2.threshold(transformacao_morfologica, 0, 255, cv2.THRESH_BINARY_INV);
@@ -119,8 +121,8 @@ class Shoreline:
             self.isApplied = True
             self.plot_progress_bar(interface, progress_bar)
             banda = self.converter_imagem_array_numpy(self, self.global_path)
-            filtro_G = self.filtro_gaussiano(self,banda, value_fG)
-            trans_M = self.transformacao_morfologica(self,filtro_G, value_tM)
+            filtro_G = self.filtro_gaussiano(self, banda, value_fG)
+            trans_M = self.transformacao_morfologica(self, filtro_G, value_tM)
             threshold = self.threshold(self, trans_M)
             image_final = self.extração_bordas(self, threshold)
             self.plot_image_filtered(self, figure_filtered, image_filtered, image_final)
