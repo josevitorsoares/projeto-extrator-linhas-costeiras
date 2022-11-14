@@ -5,7 +5,7 @@
 import tkinter as tk
 from tkinter import ttk
 # Explicit imports to satisfy Flake8
-from tkinter import HORIZONTAL, Scale, Canvas, Button
+from tkinter import HORIZONTAL, Scale, Canvas, Button, Checkbutton, IntVar
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 from matplotlib.figure import Figure
 from Shoreline import Shoreline
@@ -17,7 +17,7 @@ class ExtratorLinhasCosteiras(tk.Tk):
         super().__init__()
         self.title("Extrator de Linhas Costeiras")
         ### Inicio Configuarações de dimensões e posicionamento da janela
-        height = 590
+        height = 605
         width = 1140
 
         width_screen = self.winfo_screenwidth()
@@ -136,6 +136,42 @@ class ExtratorLinhasCosteiras(tk.Tk):
         )
         ### Fim Adição e posicionamento dos "images views" na janela
 
+        canvas.create_rectangle(
+            436.0,
+            363.0,
+            1076.0,
+            411.0,
+            fill="#FFFFFF",
+            outline="#B7B9BF")
+
+        is_checked = IntVar()
+
+        check_box = Checkbutton(
+            self,
+            background="#FFFFFF",
+            highlightbackground="#FFFFFF",
+            onvalue=1,
+            offvalue=0,
+            variable= is_checked
+
+        )
+
+        check_box.place(
+            x=710,
+            y=377,
+            height=20,
+            width=20,
+        )
+
+        canvas.create_text(
+            734.0,
+            380.0,
+            anchor="nw",
+            text="Aplicar Binarização",
+            fill="#333742",
+            font=("Inter Medium", 14 * -1)
+        )
+
         ### Inicio Configurações de filtros
 
         ### Inicio Filtro Gaussiano
@@ -158,14 +194,14 @@ class ExtratorLinhasCosteiras(tk.Tk):
 
         scale_filtro_gaussiano.place(
             x=436,
-            y=379,
+            y=420,
             width=640,
             height=53
         )
 
         canvas.create_text(
             694.0,
-            433.0,
+            470.0,
             anchor="nw",
             text="Filtro Gaussiano",
             fill="#333742",
@@ -194,14 +230,14 @@ class ExtratorLinhasCosteiras(tk.Tk):
 
         scale_transformacao_morfologica.place(
             x=436,
-            y=460,
+            y=490,
             width=640,
             height=53
         )
 
         canvas.create_text(
             650.0,
-            510.0,
+            540.0,
             anchor="nw",
             text="Transformação Morfológica",
             fill="#333742",
@@ -220,7 +256,7 @@ class ExtratorLinhasCosteiras(tk.Tk):
 
         progress_bar.place(
             x=64,
-            y=530,
+            y=545,
             width=312,
             height=10,
         )       
@@ -243,13 +279,14 @@ class ExtratorLinhasCosteiras(tk.Tk):
                 figure_filtered= figure_filtered,
                 image_filtered= image_filtered,
                 progress_bar= progress_bar,
-                interface=self
+                interface=self,
+                ischecked=is_checked.get()
                 )]
         )
 
         button_aplicar.place(
             x=64.0,
-            y=379.0,
+            y=400.0,
             width=312.0,
             height=60.0
         )
@@ -269,7 +306,7 @@ class ExtratorLinhasCosteiras(tk.Tk):
 
         button_exportar.place(
             x=64.0,
-            y=463.0,
+            y=478.0,
             width=312.0,
             height=60.0
         )

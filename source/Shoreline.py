@@ -35,7 +35,7 @@ class Shoreline:
     def plot_image_original(self, figure_original, image_original):
         path = self.open_image(self)
 
-        # figure_original['facecolor'] = '#FFFFFF'
+        figure_original.clear()
 
         ax = figure_original.add_subplot(111)
         figure_original.subplots_adjust(bottom=0, right=1, top=1, left=0, wspace=0, hspace=0)
@@ -51,6 +51,8 @@ class Shoreline:
         image_original.draw()
 
     def plot_image_filtered(self, figure_filtered, image_filtered, image_final):
+        figure_filtered.clear()
+
         ax = figure_filtered.add_subplot(111)
         figure_filtered.subplots_adjust(bottom=0, right=1, top=1, left=0, wspace=0, hspace=0)
 
@@ -86,30 +88,31 @@ class Shoreline:
         banda = self.converter_imagem_array_numpy(self)
         if(value == 0):
             self.temp_var = banda
-        elif(value % 2 == 0):
+        elif(value % 2 == 0 and value != 0):
             value = value + 1
         
-        filtro_gaussiano = cv2.GaussianBlur(banda, (value, value), 0)
+            filtro_gaussiano = cv2.GaussianBlur(banda, (value, value), 0)
 
-        self.temp_var = filtro_gaussiano
+            self.temp_var = filtro_gaussiano
 
-    def transformacao_morfologica(self, value):
+    def transformacao_morfologica(self, value, ischecked):
         if(value == 0):
-            self.threshold(self, self.temp_var)
+            self.threshold(self, self.temp_var, ischecked)
         else:
             kernel = np.ones((value,value), np.uint8)
             transformacao_morfologica = cv2.morphologyEx(self.temp_var, cv2.MORPH_OPEN, kernel)
 
-            self.threshold(self, transformacao_morfologica)
+            self.threshold(self, transformacao_morfologica, ischecked)
 
 
-    def threshold(self, transformacao_morfologica):
-        _,self.thre = cv2.threshold(transformacao_morfologica, 0, 255, cv2.THRESH_BINARY_INV);
-
-        self.extração_bordas(self, self.thre)
+    def threshold(self, transformacao_morfologica, ischecked):
+        if(ischecked == 1):
+            _,self.thre = cv2.threshold(transformacao_morfologica, 0, 255, cv2.THRESH_BINARY);
+            self.extração_bordas(self, self.thre)
+        else:
+            self.extração_bordas(self, transformacao_morfologica)
 
     def extração_bordas(self, threshold):
-        
         im_outCopy = np.uint8(threshold)
         edges = cv2.Canny(im_outCopy,100,200)
 
@@ -117,7 +120,7 @@ class Shoreline:
             output_dataset.write(edges, 1)
 
     
-    def apply_filter(self, value_fG, value_tM, figure_filtered, image_filtered, progress_bar, interface):
+    def apply_filter(self, value_fG, value_tM, figure_filtered, image_filtered, progress_bar, interface, ischecked):
         file_extension = Path(self.global_path).suffix
         if(self.global_path == ""):
             messagebox.showerror(
@@ -135,6 +138,6 @@ class Shoreline:
             self.plot_progress_bar(interface, progress_bar)
             
             self.filtro_gaussiano(self, value_fG)
-            self.transformacao_morfologica(self, value_tM)
+            self.transformacao_morfologica(self, value_tM, ischecked)
 
             self.plot_image_filtered(self, figure_filtered, image_filtered, self.path_image_filtered)
