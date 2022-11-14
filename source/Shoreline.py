@@ -9,13 +9,15 @@ from pathlib import Path
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
-from Filtro_Sobel import Filter_Sobel
 ### Fim importações
 
 class Shoreline:
 
     global_path = ""
     isApplied = False
+    metadados = ""
+    temp_var = 0
+    path_image_filtered = "assets/GeoTIFF/edges_output.tiff"
     
     def __init__(self):
         super().__init__()
@@ -32,6 +34,8 @@ class Shoreline:
 
     def plot_image_original(self, figure_original, image_original):
         path = self.open_image(self)
+
+        # figure_original['facecolor'] = '#FFFFFF'
 
         ax = figure_original.add_subplot(111)
         figure_original.subplots_adjust(bottom=0, right=1, top=1, left=0, wspace=0, hspace=0)
@@ -70,39 +74,48 @@ class Shoreline:
             time.sleep(0.5)
         progress_bar['value'] = 0
 
-    def converter_imagem_array_numpy(self, path):
-        image_banda = rasterio.open(rf"{path}")
+    def converter_imagem_array_numpy(self):
+        image_banda = rasterio.open(rf"{self.global_path}")
+        self.metadados = image_banda.profile
         banda = image_banda.read(1)
         
         return banda
 
-    def filtro_gaussiano(self, banda, value):
+    def filtro_gaussiano(self, value):
         # value tem que ser positivo e ímpar
-        if(value % 2 == 0):
-            value += 1
-            filtro_gaussiano = cv2.GaussianBlur(banda, (value, value), 0)
-
-            return filtro_gaussiano
-
-    def transformacao_morfologica(self, filtro_gaussiano, value):
+        banda = self.converter_imagem_array_numpy(self)
         if(value == 0):
-            return filtro_gaussiano
+            self.temp_var = banda
+        elif(value % 2 == 0):
+            value = value + 1
+        
+        filtro_gaussiano = cv2.GaussianBlur(banda, (value, value), 0)
+
+        self.temp_var = filtro_gaussiano
+
+    def transformacao_morfologica(self, value):
+        if(value == 0):
+            self.threshold(self, self.temp_var)
         else:
             kernel = np.ones((value,value), np.uint8)
-            transformacao_morfologica = cv2.morphologyEx(filtro_gaussiano, cv2.MORPH_OPEN, kernel)
+            transformacao_morfologica = cv2.morphologyEx(self.temp_var, cv2.MORPH_OPEN, kernel)
 
-            return transformacao_morfologica
+            self.threshold(self, transformacao_morfologica)
+
 
     def threshold(self, transformacao_morfologica):
-        _,threshold = cv2.threshold(transformacao_morfologica, 0, 255, cv2.THRESH_BINARY_INV);
+        _,self.thre = cv2.threshold(transformacao_morfologica, 0, 255, cv2.THRESH_BINARY_INV);
 
-        return threshold
+        self.extração_bordas(self, self.thre)
 
     def extração_bordas(self, threshold):
-        path_image_filtered = "assets/GeoTIFF/edges_output.tiff"
-        Filter_Sobel(self.global_path, threshold, path_image_filtered)
+        
+        im_outCopy = np.uint8(threshold)
+        edges = cv2.Canny(im_outCopy,100,200)
 
-        return path_image_filtered  
+        with rasterio.open(f'{self.path_image_filtered}', 'w', **self.metadados) as output_dataset:
+            output_dataset.write(edges, 1)
+
     
     def apply_filter(self, value_fG, value_tM, figure_filtered, image_filtered, progress_bar, interface):
         file_extension = Path(self.global_path).suffix
@@ -120,9 +133,8 @@ class Shoreline:
         else: 
             self.isApplied = True
             self.plot_progress_bar(interface, progress_bar)
-            banda = self.converter_imagem_array_numpy(self, self.global_path)
-            filtro_G = self.filtro_gaussiano(self, banda, value_fG)
-            trans_M = self.transformacao_morfologica(self, filtro_G, value_tM)
-            threshold = self.threshold(self, trans_M)
-            image_final = self.extração_bordas(self, threshold)
-            self.plot_image_filtered(self, figure_filtered, image_filtered, image_final)
+            
+            self.filtro_gaussiano(self, value_fG)
+            self.transformacao_morfologica(self, value_tM)
+
+            self.plot_image_filtered(self, figure_filtered, image_filtered, self.path_image_filtered)
